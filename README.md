@@ -6,7 +6,7 @@ RAGProcessor is a high-performance document processing and semantic search pipel
 
 ✅ **Multi-format Document Processing** - Supports text (.txt, .md, .json, .csv, .html, .xml), code (.py, .js, .css), images (.png, .jpg, .jpeg, .webp), and audio/video files (.mp3, .mp4, .wav, .webm)  
 ✅ **Intelligent Text Chunking** - Advanced token-aware text splitting with 3-10x performance optimization through caching  
-✅ **Image Processing** - Automatic image description using OpenAI Vision API (gpt-4o-mini)  
+✅ **Image Processing** - Automatic image description using OpenAI Vision API (gpt-4.1-mini)  
 ✅ **Audio Transcription** - Audio/video content extraction using OpenAI Whisper API  
 ✅ **Semantic Search** - High-quality embeddings with OpenAI text-embedding-3-large model  
 ✅ **Vector Storage** - Efficient storage and retrieval using Qdrant vector database  
@@ -155,19 +155,25 @@ The system provides:
 | **Images** | .png, .jpg, .jpeg, .webp | OpenAI Vision API description |
 | **Audio/Video** | .mp3, .mp4, .wav, .webm, .m4a, .mpeg, .mpga | OpenAI Whisper transcription |
 
-## 🧪 Testing
+## 🚀 Planned Features & Roadmap
 
-Run the test suite:
+The following features are planned for future releases:
 
-```bash
-poetry run pytest tests/
-```
+- **Support for PDF Files**  
+  Add robust PDF parsing and chunking, including extraction of text, images, and metadata.  
+  _Planned: Integration with libraries such as PyPDF2 or pdfplumber._
 
-Or test specific functionality:
+- **Support for Microsoft Word Documents (.docx)**  
+  Enable processing and semantic search for Word files, including tables and embedded images.  
+  _Planned: Use of python-docx for extraction._
 
-```bash
-python -m src.ragprocessor.text_splitter  # Test text splitting performance
-```
+- **Support for Other Binary Formats**  
+  Expand to additional formats such as PowerPoint (.pptx), Excel (.xlsx), and OpenDocument files.
+
+- **Advanced Metadata Extraction**  
+  Extract and index document metadata (author, creation date, etc.) for improved search and filtering.
+
+> _Feel free to suggest or remove any features from this roadmap according to your needs!_
 
 ## 👤 Author
 
