@@ -1,0 +1,44 @@
+[project]
+name = "ragprocessor"
+version = "1.0.0"
+description = "High-performance document processing and semantic search pipeline with multi-format support, intelligent chunking, and vector storage"
+authors = [
+    {name = "Michał Kamiński", email = "speculatore@o2.pl"}
+]
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+keywords = ["rag", "vector-search", "openai", "qdrant", "document-processing", "semantic-search", "nlp"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Text Processing :: Indexing",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "qdrant-client (>=1.14.2,<2.0.0)",
+    "openai (>=1.86.0,<2.0.0)",
+    "python-dotenv (>=1.1.0,<2.0.0)",
+    "tiktoken (>=0.9.0,<0.10.0)",
+    "pydantic (>=2.11.7,<3.0.0)"
+]
+
+[project.urls]
+homepage = "https://github.com/numikel/ragprocessor"
+repository = "https://github.com/numikel/ragprocessor"
+documentation = "https://github.com/numikel/ragprocessor/blob/main/README.md"
+issues = "https://github.com/numikel/ragprocessor/issues"
+
+[tool.poetry]
+packages = [{include = "ragprocessor", from = "src"}]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
