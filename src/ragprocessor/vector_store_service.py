@@ -1,4 +1,4 @@
-from qdrant_client import QdrantClient
+from qdrant_client import QdrantClient, models
 from qdrant_client.models import VectorParams, Distance, PointStruct
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -171,6 +171,7 @@ class VectorStoreService:
                     )
                 )
                 self.logger.info(f"Collection {self.collection_name} created successfully")
+                self.add_indexes()
             else:
                 self.logger.info(f"Collection {self.collection_name} already exists")
         except Exception as e:
@@ -246,14 +247,14 @@ class VectorStoreService:
             self.logger.error(f"Failed to generate summary: {e}")
             return "Summary generation failed"
 
-    def _get_keywords(self, content: str) -> str:
+    def _get_keywords(self, content: str) -> list:
         """Extract keywords from the content using OpenAI API.
 
         Args:
             content (str): Text content to extract keywords from
 
         Returns:
-            str: Comma-separated keywords (max 10 words)
+            list: Comma-separated keywords (max 10 words)
             
         Raises:
             ValueError: If content is empty
@@ -277,10 +278,12 @@ class VectorStoreService:
                 temperature=0.2
             )
             keywords = response.choices[0].message.content
-            return keywords if keywords else "No keywords available"
+            keywords = keywords.split(",")
+            keywords = [keyword.strip() for keyword in keywords]
+            return keywords if keywords else []
         except Exception as e:
             self.logger.error(f"Failed to extract keywords: {e}")
-            return "Keywords extraction failed"
+            return []
 
     def _get_mime_type(self, file_path: str) -> str:
         """Determine the MIME type of a file.
@@ -390,10 +393,10 @@ class VectorStoreService:
             if self.verbose and chunks:
                 stats = self.text_splitter.get_chunking_stats(chunks)
                 self.logger.info(f"Document {document_path} split statistics:")
-                self.logger.info(f"  - Total chunks: {stats['total_chunks']}")
-                self.logger.info(f"  - Average tokens per chunk: {stats['avg_tokens_per_chunk']:.1f}")
-                self.logger.info(f"  - Token range: {stats['min_tokens']}-{stats['max_tokens']}")
-                self.logger.info(f"  - Chunks over limit: {stats['chunks_over_limit']}")
+                self.logger.info(f"Total chunks: {stats['total_chunks']}")
+                self.logger.info(f"Average tokens per chunk: {stats['avg_tokens_per_chunk']:.1f}")
+                self.logger.info(f"Token range: {stats['min_tokens']}-{stats['max_tokens']}")
+                self.logger.info(f"Chunks over limit: {stats['chunks_over_limit']}")
                 if stats['chunks_over_limit'] > 0:
                     efficiency = (1 - stats['chunks_over_limit'] / stats['total_chunks']) * 100
                     self.logger.warning(f"  - Chunking efficiency: {efficiency:.1f}%")
@@ -646,11 +649,41 @@ class VectorStoreService:
         """
         return self.add_documents(directory_path, **kwargs)
 
-    def query(self, query: str, k: int = 10, score_threshold: float = 0.0) -> List[Dict[str, Any]]:
+    def add_indexes(self) -> None:
+        """Add indexes to the collection.
+        
+        Raises:
+            Exception: If index addition fails
+        """
+        try:
+            payload_mapping = {
+                "file_name": "keyword",
+                "version_id": "keyword",
+                "data_type": "keyword",
+                "keywords": "keyword",
+                "tokens": "integer",
+                "headers": "keyword",
+                "urls": "keyword",
+                "images": "keyword",
+                "indexes": "integer"
+            }
+            for field in payload_mapping.keys():
+                self.client.create_payload_index(
+                    collection_name=self.collection_name,
+                    field_name=field, 
+                    field_schema=payload_mapping[field]
+                )
+            self.logger.info(f"Indexes added to collection {self.collection_name}")
+        except Exception as e:
+            self.logger.error(f"Failed to add indexes to collection {self.collection_name}: {e}")
+            raise
+
+    def query(self, query: str, filter_values: list[dict] = None, k: int = 10, score_threshold: float = 0.0) -> List[Dict[str, Any]]:
         """Search the vector store for similar documents.
 
         Args:
             query (str): Search query
+            filter (dict, optional): Filter query by metadata. Defaults to None.
             k (int, optional): Number of results to return. Defaults to 10.
             score_threshold (float, optional): Minimum similarity score. Defaults to 0.0.
 
@@ -666,6 +699,18 @@ class VectorStoreService:
             
         if k <= 0:
             raise ValueError("k must be positive")
+        
+        if filter_values:
+            filter = models.Filter(
+                must=[
+                    models.FieldCondition(
+                        key=filter_value["key"],
+                        match=models.MatchValue(value=filter_value["value"]),
+                    ) for filter_value in filter_values
+                ]
+            )
+        else:
+            filter = None
             
         try:
             self.logger.info(f"Querying the collection {self.collection_name} with the query: {query[:100]}...")
@@ -673,8 +718,9 @@ class VectorStoreService:
                 collection_name=self.collection_name,
                 query=self._embed_documents([query])[0],
                 limit=k,
-                with_payload=True,
-                score_threshold=score_threshold
+                with_payload=True,  
+                score_threshold=score_threshold,
+                query_filter=filter
             ).points
             
             # Format results for better usability

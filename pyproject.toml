@@ -1,6 +1,6 @@
 [project]
 name = "ragprocessor"
-version = "1.0.0"
+version = "1.0.1"
 description = "High-performance document processing and semantic search pipeline with multi-format support, intelligent chunking, and vector storage"
 authors = [
     {name = "Michał Kamiński", email = "speculatore@o2.pl"}
@@ -33,6 +33,7 @@ dependencies = [
 homepage = "https://github.com/numikel/ragprocessor"
 repository = "https://github.com/numikel/ragprocessor"
 documentation = "https://github.com/numikel/ragprocessor/blob/main/README.md"
+changelog = "https://github.com/numikel/ragprocessor/blob/main/CHANGELOG.md"
 issues = "https://github.com/numikel/ragprocessor/issues"
 
 [tool.poetry]

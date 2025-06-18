@@ -15,6 +15,9 @@ RAGProcessor is a high-performance document processing and semantic search pipel
 ✅ **Colored Logging** - Enhanced console output with color-coded log levels (warnings in yellow, errors in red)  
 ✅ **Performance Monitoring** - Detailed statistics and cache performance metrics  
 ✅ **Strict Token Limits** - Configurable chunk size enforcement with 5% tolerance  
+✅ **Advanced Filtering** - Support for metadata-based filtering in semantic search queries  
+✅ **Automatic Indexing** - Smart payload field indexing for optimized query performance  
+✅ **Enhanced Metadata** - Improved keyword extraction with list-based output format  
 
 ## 🛠 Requirements
 
@@ -67,17 +70,37 @@ stats = vector_store.add_documents(
     chunk_validation=True
 )
 
-# Semantic search
+# Semantic search with optional filtering
 results = vector_store.query(
     query="What is the main topic discussed?",
     k=5,
-    score_threshold=0.7
+    score_threshold=0.7,
+    filter_values=[{"key": "keywords", "value": "technology"}]  # Optional metadata filtering
 )
 
 for result in results:
     print(f"Score: {result['score']:.4f}")
     print(f"Text: {result['text'][:200]}...")
     print(f"File: {result['file_name']}")
+```
+
+### Advanced Filtering and Search
+
+```python
+# Search with metadata filtering
+results = vector_store.query(
+    query="artificial intelligence topics",
+    filter_values=[
+        {"key": "keywords", "value": "AI"},
+        {"key": "data_type", "value": "text/plain"}
+    ],
+    k=10,
+    score_threshold=0.75
+)
+
+# Get collection information with index status
+collection_info = vector_store.get_collection_info()
+print(f"Collection has {collection_info['points_count']} documents")
 ```
 
 ### Directory Analysis
@@ -184,6 +207,29 @@ Made with ❤️ by Michał Kamiński
 This project is licensed under the MIT License.  
 You are free to use, modify, and distribute it as you wish.
 
+## 📋 Changelog
+
+### Version 1.0.1 (Latest)
+
+**Enhancements:**
+- ✨ **Enhanced VectorStoreService** with improved index management and metadata filtering
+- 🔧 **Updated Keyword Extraction** - `_get_keywords()` method now returns a proper list instead of string
+- 🚀 **New Index Management** - Added `add_indexes()` method for automatic payload field indexing
+- 🔍 **Advanced Query Filtering** - Modified `query()` method to support metadata-based filtering
+- 📊 **Improved Logging** - Enhanced chunk statistics logging for better performance monitoring
+
+**Technical Changes:**
+- Modified `_get_keywords()` method to return `List[str]` instead of comma-separated string
+- Added automatic payload indexing for fields: `file_name`, `version_id`, `data_type`, `keywords`, `tokens`, `headers`, `urls`, `images`, `indexes`
+- Enhanced `query()` method with `filter_values` parameter for metadata filtering
+- Improved performance logging with detailed chunk statistics
+
+### Version 1.0.0
+
+- 🎉 Initial stable release with full multi-format document processing
+- 🚀 Complete vector storage and semantic search pipeline
+- 📝 Comprehensive documentation and examples
+
 ---
 
-*RAGProcessor v1.0 - High-Performance Document Processing & Semantic Search Pipeline*
+*RAGProcessor v1.0.1 - High-Performance Document Processing & Semantic Search Pipeline*

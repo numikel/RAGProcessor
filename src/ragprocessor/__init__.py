@@ -5,7 +5,7 @@ This package provides tools for processing various document types, creating opti
 text chunks, and performing semantic search using vector databases.
 """
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 __author__ = "Michał Kamiński"
 
 from .vector_store_service import VectorStoreService
